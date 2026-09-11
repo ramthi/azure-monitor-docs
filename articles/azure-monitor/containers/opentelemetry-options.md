@@ -3,7 +3,7 @@ title: OpenTelemetry with Azure Monitor
 description: Centralized guide to OpenTelemetry in Azure Monitor - native OTLP ingestion, the Microsoft OpenTelemetry Distro, and end-to-end observability experiences.
 ms.topic: concept-article
 ms.reviewer: kaprince
-ms.date: 05/29/2026
+ms.date: 09/11/2026
 ai-usage: ai-assisted
 
 #customer intent: As a developer or cloud architect, I want to understand how Azure Monitor supports OpenTelemetry so that I can choose between native OTLP ingestion and the Microsoft OpenTelemetry Distro for my applications.
@@ -49,6 +49,14 @@ The Microsoft OpenTelemetry Distro is fully supported by Microsoft and ensures y
 - **If you're an existing Application Insights customer:** The Microsoft OpenTelemetry Distro is the best fit when you want to move to OpenTelemetry while preserving rich Azure Monitor experiences and retain access to new capabilities like dedicated AI agent observability workflows. For more information, see [Enable the Microsoft OpenTelemetry Distro](../app/opentelemetry-enable.md).
 - **If you're adopting vendor-neutral OpenTelemetry:** OTLP ingestion lets you keep open-source SDKs and standard pipelines while enabling you to send telemetry into Azure Monitor and take advantage of Application Insights workflows and ready-to-use dashboards for triage and troubleshooting. For more information, see [Ingest OTLP data with the OpenTelemetry Collector](opentelemetry-protocol-ingestion.md).
 - **If you run cloud-native workloads with Prometheus and Grafana:** Azure Monitor OTLP ingestion includes an Azure Monitor workspace for Prometheus metrics and supports visualization through built-in Azure Monitor dashboards with Grafana in the Azure portal or through Azure Managed Grafana, helping you stay aligned with open-source observability patterns while using Azure-managed services.
+
+### Route telemetry to multiple Application Insights resources
+
+A service might process traffic for multiple customers, tenants, or subsystems that require separate telemetry destinations for data isolation, ownership, or compliance. In this scenario, use an OpenTelemetry Collector as a routing layer instead of sending all telemetry to the single destination configured for an application.
+
+Add a stable attribute that identifies the destination to each telemetry signal, and configure the Collector to route on that attribute. Use a separate exporter pipeline for each Application Insights resource so that telemetry for each customer or subsystem reaches only its intended destination. Apply the routing attribute consistently to traces, metrics, and logs to preserve correlation, and don't include sensitive information in attribute values.
+
+This pattern is a good fit for the vendor-neutral OTLP ingestion path because the Collector centralizes routing and destination configuration outside application code. For information about configuring Azure Monitor destinations, see [Ingest OTLP data with the OpenTelemetry Collector](opentelemetry-protocol-ingestion.md). For Collector routing configuration, see the [OpenTelemetry routing connector](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/connector/routingconnector).
 
 Azure Monitor's OpenTelemetry support spans instrumentation, ingestion, storage, and visualization. Pick the path that matches your team's open-source or Microsoft-supported preference.
 
