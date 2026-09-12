@@ -50,13 +50,18 @@ The Microsoft OpenTelemetry Distro is fully supported by Microsoft and ensures y
 - **If you're adopting vendor-neutral OpenTelemetry:** OTLP ingestion lets you keep open-source SDKs and standard pipelines while enabling you to send telemetry into Azure Monitor and take advantage of Application Insights workflows and ready-to-use dashboards for triage and troubleshooting. For more information, see [Ingest OTLP data with the OpenTelemetry Collector](opentelemetry-protocol-ingestion.md).
 - **If you run cloud-native workloads with Prometheus and Grafana:** Azure Monitor OTLP ingestion includes an Azure Monitor workspace for Prometheus metrics and supports visualization through built-in Azure Monitor dashboards with Grafana in the Azure portal or through Azure Managed Grafana, helping you stay aligned with open-source observability patterns while using Azure-managed services.
 
-### Route telemetry to multiple Application Insights resources
+### Route telemetry to one or multiple Application Insights resources
 
-A service might process traffic for multiple customers, tenants, or subsystems that require separate telemetry destinations for data isolation, ownership, or compliance. In this scenario, use an OpenTelemetry Collector as a routing layer instead of sending all telemetry to the single destination configured for an application.
+The recommended solution, the Microsoft OpenTelemetry Distro, includes a configurable Azure Monitor exporter. By default, the exporter uses a [connection string](../app/opentelemetry-enable.md#paste-the-connection-string-in-your-environment) to send telemetry to a single Application Insights resource.
 
-Add a stable attribute that identifies the destination to each telemetry signal, and configure the Collector to route on that attribute. Use a separate exporter pipeline for each Application Insights resource so that telemetry for each customer or subsystem reaches only its intended destination. Apply the routing attribute consistently to traces, metrics, and logs to preserve correlation, and don't include sensitive information in attribute values.
+A service might process traffic for multiple customers, tenants, or subsystems that require separate telemetry destinations for data isolation, ownership, or compliance. In these scenarios, you can configure the Azure Monitor exporter to route telemetry to multiple Application Insights resources.
 
-This pattern is a good fit for the vendor-neutral OTLP ingestion path because the Collector centralizes routing and destination configuration outside application code. For information about configuring Azure Monitor destinations, see [Ingest OTLP data with the OpenTelemetry Collector](opentelemetry-protocol-ingestion.md). For Collector routing configuration, see the [OpenTelemetry routing connector](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/connector/routingconnector).
+To enable routing to multiple resources, meet the following configuration and authentication requirements:
+
+- Pass the connection string and [additional attribute name to be confirmed] to the Distro.
+- If you use Microsoft Entra authentication for ingestion, assign the service's managed identity the **Monitoring Metrics Publisher** role on each destination Application Insights resource. For more information, see [Microsoft Entra authentication for Application Insights](../app/azure-ad-authentication.md).
+- Alternatively, if you don't use Microsoft Entra authentication for ingestion, ensure that local authentication is enabled on each destination resource.
+
 
 Azure Monitor's OpenTelemetry support spans instrumentation, ingestion, storage, and visualization. Pick the path that matches your team's open-source or Microsoft-supported preference.
 
